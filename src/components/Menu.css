@@ -1,0 +1,39 @@
+.custom-navbar-brand {
+    background-color: #000080 !important;
+    font-weight: bold;
+    color: #f0f8ff;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.custom-navbar-brand:hover {
+    color: #f0f8ff;
+    background-color: #001f4d !important;
+}
+
+.estude-section {
+    position: relative;
+    display: inline-block;
+    color: #ffc107 !important; /* Cor amarela para indicar construção */
+}
+
+.estude-section .default-text {
+    display: inline;
+}
+
+.estude-section .hover-text {
+    display: none;
+}
+
+.estude-section:hover .default-text {
+    display: none;
+}
+
+.estude-section:hover .hover-text {
+    display: inline;
+    color: #f0f8ff;
+    background-color: rgb(173, 11, 11);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
