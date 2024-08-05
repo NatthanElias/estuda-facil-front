@@ -4,8 +4,12 @@ import { getDecksAPI, getDeckPorCodigoAPI, deleteDeckPorCodigoAPI, cadastraDeckA
 import Tabela from "./Tabela";
 import Form from "./Form";
 import Carregando from '../../common/Carregando';
+import WithAuth from "../../../seguranca/WithAuth";
+import { useNavigate } from "react-router-dom";
 
 function Deck() {
+
+    let navigate = useNavigate();
 
     const [alerta, setAlerta] = useState({ status: "", message: "" });
     const [listaObjetos, setListaObjetos] = useState([]);
@@ -25,9 +29,14 @@ function Deck() {
     }
 
     const editarObjeto = async codigo => {
-        setObjeto(await getDeckPorCodigoAPI(codigo))
-        setEditar(true);
-        setAlerta({ status: "", message: "" });
+        try {
+            setObjeto(await getDeckPorCodigoAPI(codigo))
+            setEditar(true);
+            setAlerta({ status: "", message: "" });
+        } catch (err) {
+            window.location.reload();
+            navigate("login", { replace: true });
+        }    
     }
     
     const acaoCadastrar = async e => {
@@ -42,6 +51,7 @@ function Deck() {
             }
         } catch (err) {
             console.error(err.message);
+            navigate("/login", { replace: true });
         }
 
         recuperaDecks();
@@ -56,16 +66,27 @@ function Deck() {
     const [carregando, setCarregando] = useState(true);
 
     const recuperaDecks = async () => {
-        setCarregando(true);
-        setListaObjetos(await getDecksAPI());
-        setCarregando(false);
+        try {
+            setCarregando(true);
+            setListaObjetos(await getDecksAPI());
+            setCarregando(false);
+        } catch (err){
+            window.location.reload();
+            navigate("/login", { replace: true });
+        }
     }
 
     const remover = async codigo => {
         if (window.confirm('Deseja remover este objeto?')) {
-            let retornoAPI = await deleteDeckPorCodigoAPI(codigo);
-            setAlerta({ status: retornoAPI.status, message: retornoAPI.message })
-            recuperaDecks();
+            try {
+                let retornoAPI = await deleteDeckPorCodigoAPI(codigo);
+                setAlerta({ status: retornoAPI.status, message: retornoAPI.message })
+                recuperaDecks();
+            } catch (err) {
+                window.location.reload();
+                navigate("/login", { replace: true });
+            }
+
         }
     }
 
@@ -93,4 +114,4 @@ function Deck() {
     );
 }
 
-export default Deck;
+export default WithAuth(Deck);

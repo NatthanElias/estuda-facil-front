@@ -5,8 +5,13 @@ import Form from './Form';
 import { getDecksAPI } from '../../../services/DeckServico';
 import { getCardsAPI, getCardPorCodigoAPI, deleteCardPorCodigoAPI, cadastraCardAPI } from '../../../services/CardServico';
 import Carregando from '../../common/Carregando';
+import WithAuth from "../../../seguranca/WithAuth";
+import { useNavigate } from "react-router-dom";
 
 function Card() {
+
+    let navigate = useNavigate();
+
     const [alerta, setAlerta] = useState({ status: "", message: "" });
     const [listaObjetos, setListaObjetos] = useState([]);
     const [listaDecks, setListaDecks] = useState([]);
@@ -32,10 +37,15 @@ function Card() {
     };
 
     const editarObjeto = async codigo => {
-        const card = await getCardPorCodigoAPI(codigo);
-        setObjeto(card || { codigo: 0, pergunta: "", resposta: "", deck_id: "", deck_nome: "" });
-        setEditar(true);
-        setAlerta({ status: "", message: "" });
+        try {
+            const card = await getCardPorCodigoAPI(codigo);
+            setObjeto(card || { codigo: 0, pergunta: "", resposta: "", deck_id: "", deck_nome: "" });
+            setEditar(true);
+            setAlerta({ status: "", message: "" });
+        } catch (err) {
+            window.location.reload();
+            navigate("login", { replace: true });
+        }
     };
 
     const acaoCadastrar = async e => {
@@ -53,6 +63,8 @@ function Card() {
             }
         } catch (err) {
             console.error(err.message);
+            window.location.reload();
+            navigate("login", { replace: true });
         }
         recuperaCards();
     };
@@ -79,22 +91,37 @@ function Card() {
     const [carregando, setCarregando] = useState(true);
 
     const recuperaCards = async () => {
-        setCarregando(true);
-        const cards = await getCardsAPI();
-        setListaObjetos(cards);
-        setCarregando(false);
+        try {
+            setCarregando(true);
+            const cards = await getCardsAPI();
+            setListaObjetos(cards);
+            setCarregando(false);
+        } catch (err) {
+            window.location.reload();
+            navigate("login", { replace: true });
+        }
     };
 
     const recuperaDecks = async () => {
-        const decks = await getDecksAPI();
-        setListaDecks(decks);
+        try {
+            const decks = await getDecksAPI();
+            setListaDecks(decks);
+        } catch (err) {
+            window.location.reload();
+            navigate("login", { replace: true });
+        }
     };
 
     const remover = async codigo => {
         if (window.confirm('Deseja remover este objeto?')) {
-            let retornoAPI = await deleteCardPorCodigoAPI(codigo);
-            setAlerta({ status: retornoAPI.status, message: retornoAPI.message });
-            recuperaCards();
+            try {
+                let retornoAPI = await deleteCardPorCodigoAPI(codigo);
+                setAlerta({ status: retornoAPI.status, message: retornoAPI.message });
+                recuperaCards();
+            } catch (err) {
+                window.location.reload();
+                navigate("login", { replace: true });
+            }
         }
     };
 
@@ -121,4 +148,4 @@ function Card() {
     );
 }
 
-export default Card;
+export default WithAuth(Card);
